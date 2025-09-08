@@ -1,0 +1,24 @@
+# Blender 4.4.3 MTL File: 'None'
+# www.blender.org
+
+newmtl Bark001_2K_JPG_Mat
+Ns 200.000000
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd icg/sakura-tree-01-low-poly-model/source/Sakura/Sakura/Bark001_2K_JPG.png
+map_d C:/Bark001_2K_JPG_Mat_Opacity
+map_Bump -bm 1.000000 C:/Bark001_2K_JPG_Mat_Normal
+
+newmtl Sakura_Mat
+Ns 200.000000
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd icg/sakura-tree-01-low-poly-model/source/Sakura/Sakura/Sakura.png
+map_d icg/sakura-tree-01-low-poly-model/source/Sakura/Sakura/Sakura_Opacity.png
+map_Bump -bm 1.000000 C:/Sakura_Mat_Normal
