@@ -17,6 +17,8 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dat.gui/build/dat.gui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
 
     <script>
 
@@ -83,40 +85,94 @@
         scene.add(ground);
 
     // ✅ สร้าง textureLoader
- 
-
+    const objTex4 = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/Bark001_2K_JPG.png");
+    const objTex5 = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/Sakura.png");
+    const objTex6 = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/Sakura_Opacity.png");
     const objTex = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/lambert1_baseColor.png");
     const objTex1 = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/lambert1_emissive.png");
     const objTex2 = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/lambert1_metallicRoughness.png");
     const objTex3 = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/lambert1_normal.png");
+    const objTex7 = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/gltf_embedded_1.jpeg");
+    const objTex8 = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/gltf_embedded_0.png");
 
-    // ✅ โหลดโมเดล OBJ
-    const loader = new THREE.OBJLoader();
-    loader.load('https://raw.githubusercontent.com/sirikanyaaa/Model3/main/Journey.obj', function (object) {
-        object.scale.set(0.02, 0.02, 0.02);
+// ✅ โหลด Journey.obj
+const objLoader = new THREE.OBJLoader();
+objLoader.load('https://raw.githubusercontent.com/sirikanyaaa/Model3/main/Journey.obj', function (object) {
+    object.scale.set(0.02, 0.02, 0.02);
+    object.traverse(function (child) {
+        if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
 
-        object.traverse(function (child) {
+            child.material = new THREE.MeshStandardMaterial({
+                map: objTex,
+                emissive: new THREE.Color(0xffffff),
+                emissiveMap: objTex1,
+                metalnessMap: objTex2,
+                normalMap: objTex3
+            });
+        }
+    });
+
+    scene.add(object);
+}, undefined, function (error) {
+    console.error('Error loading Journey.obj:', error);
+});
+
+
+// ✅ โหลด Sakura.obj + Sakura.mtl + PNG texture
+    const objLoader2 = new THREE.OBJLoader();
+    objLoader2.load('https://raw.githubusercontent.com/sirikanyaaa/Model3/main/Sakura.obj', function (object2) {
+        object2.scale.set(25, 25, 25);
+        object2.position.set(5, 0, 0);
+
+        object2.traverse(function (child) {
             if (child.isMesh) {
                 child.castShadow = true;
                 child.receiveShadow = true;
 
-                // ✅ ใส่ texture อย่างถูกต้อง
-                child.material = new THREE.MeshStandardMaterial({
-                    map: objTex,
-                    emissive: new THREE.Color(0xffffff),
-                    emissiveMap: objTex1,
-                    metalnessMap: objTex2,
-                    roughnessMap: objTex2,
-                    normalMap: objTex3
-                });
+                    
+            child.material = new THREE.MeshStandardMaterial({
+                map: objTex4,
+                normalMap: objTex5,
+                metalnessMap: objTex6,
+            
+            });
+                 
             }
         });
-       
-       
-        scene.add(object);
+
+        scene.add(object2);
     }, undefined, function (error) {
-        console.error('Error loading OBJ:', error);
+        console.error('Error loading Sakura.obj:', error);
     });
+
+
+
+// ✅ โหลด Deer.obj
+const objLoader3 = new THREE.OBJLoader();
+objLoader3.load('https://raw.githubusercontent.com/sirikanyaaa/Model3/main/Deer.obj', function (object3) {
+    object3.scale.set(0.05, 0.05, 0.05);
+    object3.position.set(-5, 0, 5);
+
+    object3.traverse(function (child) {
+        if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+
+            child.material = new THREE.MeshStandardMaterial({
+                map: objTex8,
+                normalMap: objTex7
+                
+            });
+        }
+    });
+
+    scene.add(object3);
+}, undefined, function (error) {
+    console.error('Error loading Deer.obj:', error);
+});
+
 
    // 👉 สร้าง SpotLight ก่อนใช้
 const spotLight = new THREE.SpotLight(0xffffff, 1);
