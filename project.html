@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Project</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- core three.js -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dat.gui/build/dat.gui.min.js"></script>
+
+    <script>
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true; // ✅ เปิดใช้งานเงา!
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        document.body.appendChild(renderer.domElement);
+
+        const scene = new THREE.Scene();
+
+        // ✅ กล้อง
+        const camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        camera.position.set(0, 2, 5);
+        camera.lookAt(0, 0, 0);
+
+        // ✅ Directional Light ที่สร้างเงา
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 10, 5);
+        light.castShadow = true;
+        light.shadow.mapSize.width = 1024;
+        light.shadow.mapSize.height = 1024;
+        light.shadow.camera.near = 0.5;
+        light.shadow.camera.far = 50;
+
+        scene.add(light);
+
+
+
+        // ✅ Ambient Light เล็กน้อยให้สว่างรวม
+        const ambient = new THREE.AmbientLight(0x404040);
+        scene.add(ambient);
+
+
+
+        // ✅ พื้น
+        const planeGeometry = new THREE.PlaneGeometry(20, 20);
+        const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.rotation.x = -Math.PI / 2; // หมุนให้เป็นพื้น
+        plane.position.y = 0;
+        plane.receiveShadow = true; // ✅ พื้นรับเงา
+        scene.add(plane);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        // ✅ โหลดพื้นหลัง
+        const textureLoader = new THREE.TextureLoader();
+        const bg = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/blue-sky-clouds.jpg");
+        scene.background = bg;
+
+        // ✅ พื้นพร้อม texture
+        const groundTex = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/grass.jpg");
+        const planeGeo = new THREE.PlaneGeometry(20, 20);
+        const planeMat = new THREE.MeshStandardMaterial({ map: groundTex });
+        const ground = new THREE.Mesh(planeGeo, planeMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+    // ✅ สร้าง textureLoader
+ 
+
+    const objTex = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/lambert1_baseColor.png");
+    const objTex1 = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/lambert1_emissive.png");
+    const objTex2 = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/lambert1_metallicRoughness.png");
+    const objTex3 = textureLoader.load("https://raw.githubusercontent.com/sirikanyaaa/Model3/main/lambert1_normal.png");
+
+    // ✅ โหลดโมเดล OBJ
+    const loader = new THREE.OBJLoader();
+    loader.load('https://raw.githubusercontent.com/sirikanyaaa/Model3/main/Journey.obj', function (object) {
+        object.scale.set(0.02, 0.02, 0.02);
+
+        object.traverse(function (child) {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+
+                // ✅ ใส่ texture อย่างถูกต้อง
+                child.material = new THREE.MeshStandardMaterial({
+                    map: objTex,
+                    emissive: new THREE.Color(0xffffff),
+                    emissiveMap: objTex1,
+                    metalnessMap: objTex2,
+                    roughnessMap: objTex2,
+                    normalMap: objTex3
+                });
+            }
+        });
+       
+       
+        scene.add(object);
+    }, undefined, function (error) {
+        console.error('Error loading OBJ:', error);
+    });
+
+   // 👉 สร้าง SpotLight ก่อนใช้
+const spotLight = new THREE.SpotLight(0xffffff, 1);
+spotLight.position.set(0, 0, 0);
+spotLight.castShadow = true;
+scene.add(spotLight);
+
+// ✅ dat.GUI Controls
+const gui = new dat.GUI();
+
+const lightFolder = gui.addFolder("Directional Light");
+lightFolder.add(light, "intensity", 0, 2, 0.1);
+lightFolder.add(light.position, "x", -10, 10, 0.1);
+lightFolder.add(light.position, "y", 0, 20, 0.1);
+lightFolder.add(light.position, "z", -10, 10, 0.1);
+
+const spotFolder = gui.addFolder("Spot Light");
+spotFolder.add(spotLight, "intensity", 0, 2, 0.1);
+spotFolder.add(spotLight, "angle", 0, Math.PI / 2, 0.01);
+spotFolder.add(spotLight.position, "x", -10, 10, 0.1);
+spotFolder.add(spotLight.position, "y", 0, 20, 0.1);
+spotFolder.add(spotLight.position, "z", -10, 10, 0.1);
+
+gui.add(plane.material, "roughness", 0, 1, 0.01);
+gui.add(plane.material, "metalness", 0, 1, 0.01);
+
+       
+        // ✅ render loop
+        function animate(t) {
+
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        animate(0);
+
+        window.addEventListener('keydown', (event) => {
+
+        });
+
+    </script>
+</body>
+
+</html>
